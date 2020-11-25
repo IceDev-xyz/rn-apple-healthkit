@@ -23,23 +23,28 @@
         callback(@[RCTMakeError(@"startDate is required in options", nil, nil)]);
         return;
     }
-    NSPredicate * predicate = [RCTAppleHealthKit predicateForSamplesBetweenDates:startDate endDate:endDate];
+    
+    if(endDate == nil){
+        callback(@[RCTMakeError(@"endDate is required in options", nil, nil)]);
+        return;
+    }
 
-    [self fetchQuantitySamplesOfType:activeEnergyType
-                                unit:cal
-                           predicate:predicate
-                           ascending:false
-                               limit:HKObjectQueryNoLimit
-                          completion:^(NSArray *results, NSError *error) {
-                              if(results){
-                                  callback(@[[NSNull null], results]);
-                                  return;
-                              } else {
-                                  NSLog(@"error getting active energy burned samples: %@", error);
-                                  callback(@[RCTMakeError(@"error getting active energy burned samples", nil, nil)]);
-                                  return;
-                              }
-                          }];
+    [self fetchCumulativeSumStatisticsCollection:activeEnergyType
+                                            unit:cal
+                                       startDate:startDate
+                                         endDate:endDate
+                                       ascending:false
+                                           limit:HKObjectQueryNoLimit
+                                      completion:^(NSArray *results, NSError *error) {
+                                          if(results){
+                                              callback(@[[NSNull null], results]);
+                                              return;
+                                          } else {
+                                              NSLog(@"error getting active energy burned samples: %@", error);
+                                              callback(@[RCTMakeError(@"error getting active energy burned samples", nil, nil)]);
+                                              return;
+                                          }
+                                      }];
 }
 
 - (void)activity_getBasalEnergyBurned:(NSDictionary *)input callback:(RCTResponseSenderBlock)callback
